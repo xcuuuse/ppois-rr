@@ -1,0 +1,19 @@
+CentralDistrict
+<- concept_district;
+=> nrel_main_idtf:
+  [Центральный район]
+  (*
+    <- lang_ru;;
+  *);
+=> nrel_square:
+  square_mir;
+  square_victory;
+
+=> nrel_street:
+  street_lenina;
+  street_mir;
+  street_park;
+  avenue_gagarin;
+  street_pushkin;
+  street_soviet;;
+

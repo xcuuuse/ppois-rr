@@ -1,0 +1,9 @@
+concept_list
+<- sc_node_class;
+=> nrel_main_idtf:
+  [словарь объектов по жанру]
+  (*
+    <- lang_ru;;
+  *);
+<= nrel_inclusion:
+    concept_set;;

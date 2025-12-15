@@ -1,0 +1,9 @@
+street_pushkin
+=> nrel_main_idtf:
+  [Улица Пушкина]
+  (*
+    <- lang_ru;;
+  *);
+<- concept_street;
+=> nrel_street_length:
+  [1.5];;

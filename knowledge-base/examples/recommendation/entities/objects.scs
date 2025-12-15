@@ -1,0 +1,39 @@
+Interstellar
+<- concept_object;
+=> nrel_object_name: nrel_main_idtf:
+    [Интерстеллар]
+    (*
+        <- lang_ru;;
+    *);
+=> nrel_average_rating:
+    [4.8];;
+
+Matrix
+<- concept_object;
+=> nrel_object_name: nrel_main_idtf:
+    [Матрица]
+    (*
+        <- lang_ru;;
+    *);
+=> nrel_average_rating:
+    [4.5];;
+
+MazeRunner
+<- concept_object;
+=> nrel_object_name: nrel_main_idtf:
+    [Бегущий в лабиринте]
+    (*
+        <- lang_ru;;
+    *);
+=> nrel_average_rating:
+    [3.8];;
+
+StarWars
+<- concept_object;
+=> nrel_object_name: nrel_main_idtf:
+    [Звездные Войны]
+    (*
+        <- lang_ru;;
+    *);
+=> nrel_average_rating:
+    [4.1];;

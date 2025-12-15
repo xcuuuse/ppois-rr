@@ -1,0 +1,11 @@
+concept_intersection
+<- sc_node_class;
+=> nrel_main_idtf:
+  [перектесток]
+  (*
+    <- lang_ru;;
+  *);
+  [interscetion]
+  (*
+    <- lang_en;;
+  *);;

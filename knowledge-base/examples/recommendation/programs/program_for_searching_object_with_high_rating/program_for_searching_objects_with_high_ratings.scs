@@ -1,0 +1,288 @@
+program_for_searching_objects_with_high_ratings
+=> nrel_main_idtf:
+	[Программа поиска объектов системы рекомендаций с высоким рейтингом]
+    (*
+        <- lang_ru;;
+    *);
+	[Program for searching objects of specified recommendation_system with high ratings]
+    (*
+        <- lang_en;;
+    *);
+<- scp_program;
+-> rrel_key_sc_element:
+    .._process;;
+
+program_for_searching_objects_with_high_ratings = [*
+.._process
+<-_ scp_process;
+
+_-> rrel_1:: rrel_in:: .._recommendation_system;
+_-> rrel_2:: rrel_out:: .._result_objects;
+
+<=_ nrel_decomposition_of_action:: _...
+(*
+
+	_-> rrel_1:: .._generate_result_set_of_objects_with_high_ratings
+	(*
+		<-_ genElStr3;;
+
+		_-> rrel_1:: rrel_assign:: rrel_scp_var:: rrel_const:: rrel_node:: rrel_structure:: .._result_objects;;
+		_-> rrel_2:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_from_result_objects_to_class;;
+		_-> rrel_3:: rrel_fixed:: rrel_scp_const:: concept_object;;
+
+		_=> nrel_goto:: .._check_recommendation_system;;
+	*);;
+
+	_-> .._check_recommendation_system
+	(*
+		<-_ searchElStr3;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: concept_recommendation_system;;
+		_-> rrel_2:: rrel_assign:: rrel_const_perm_pos_arc:: rrel_scp_var:: .._arc_from_class_to_recommendation_system;;
+		_-> rrel_3:: rrel_fixed:: rrel_scp_const:: .._recommendation_system;;
+
+
+		_=> nrel_then:: .._print_that_specified_argument_is_recommendation_system;;
+
+		_=> nrel_else:: .._print_that_specified_argument_is_not_recommendation_system;;
+	*);;
+
+	_-> .._print_that_specified_argument_is_recommendation_system
+	(*
+		<-_ printNl;;		
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [Specified argument is recommendation_system];;
+
+
+		_=> nrel_goto:: .._search_recommendation_system_lists;;
+	*);;
+
+	_-> .._search_recommendation_system_lists
+	(*
+		<-_ searchSetStr5;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: .._recommendation_system;;
+		_-> rrel_2:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_from_recommendation_system_to_list;;
+		_-> rrel_3:: rrel_assign:: rrel_scp_var:: rrel_const:: rrel_node:: .._list;;
+		_-> rrel_4:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_to_arc_from_recommendation_system_to_list;;
+		_-> rrel_5:: rrel_fixed:: rrel_scp_const:: rrel_list;;
+	
+		_-> rrel_set_3:: rrel_assign:: rrel_scp_var:: .._found_lists;;
+
+
+		_=> nrel_then:: .._get_next_list;;
+
+		_=> nrel_else:: .._print_that_all_lists_were_iterated;;
+	*);;
+
+	_-> .._get_next_list
+	(*
+		<-_ searchElStr3;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: .._found_lists;;
+		_-> rrel_2:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_from_list_set_to_list;;
+		_-> rrel_3:: rrel_assign:: rrel_scp_var:: .._list;;
+
+		_=> nrel_then:: .._pop_list_from_set;;
+
+		_=> nrel_else:: .._print_that_all_lists_were_iterated;;
+	*);;
+
+	_-> .._pop_list_from_set
+	(*
+		<-_ eraseEl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: rrel_erase:: .._arc_from_list_set_to_list;;
+
+
+		_=> nrel_goto:: .._print_that_recommendation_system_list_was_found;;
+	*);;
+
+	_-> .._print_that_recommendation_system_list_was_found
+	(*
+		<-_ printNl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [List was found in specified recommendation_system];;
+
+		_=> nrel_goto:: .._search_list_objects;;
+	*);;
+
+
+	_-> .._search_list_objects
+	(*
+		<-_ searchSetStr5;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: .._list;;
+		_-> rrel_2:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_from_list_to_object;;
+		_-> rrel_3:: rrel_assign:: rrel_scp_var:: rrel_const:: rrel_node:: .._object;;
+		_-> rrel_4:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_to_arc_from_list_to_object;;
+		_-> rrel_5:: rrel_fixed:: rrel_scp_const:: rrel_object;;
+	
+		_-> rrel_set_3:: rrel_assign:: rrel_scp_var:: .._found_objects;;
+
+		_=> nrel_then:: .._get_next_object;;
+
+		_=> nrel_else:: .._get_next_list;;
+	*);;
+
+	_-> .._get_next_object
+	(*
+		<-_ searchElStr3;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: .._found_objects;;
+		_-> rrel_2:: rrel_assign:: rrel_const_perm_pos_arc:: rrel_scp_var:: .._arc_from_object_set_to_object;;
+		_-> rrel_3:: rrel_assign:: rrel_scp_var:: .._object;;
+		
+
+		_=> nrel_then:: .._pop_object_from_set;;
+
+		_=> nrel_else:: .._print_that_all_objects_were_iterated;;
+	*);;
+
+
+	_-> .._pop_object_from_set
+	(*
+		<-_ eraseEl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: rrel_erase:: .._arc_from_object_set_to_object;;
+
+		_=> nrel_goto:: .._print_that_list_object_was_found;;
+	*);;
+
+	_-> .._print_that_list_object_was_found
+	(*
+		<-_ printNl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [object was found in specified list];;
+
+		_=> nrel_goto:: .._search_object_average_rating;;
+	*);;
+
+	_-> .._search_object_average_rating
+	(*
+		<-_ searchElStr5;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: .._object;;
+		_-> rrel_2:: rrel_assign:: rrel_scp_var:: rrel_const:: rrel_common_arc:: .._arc_from_object_to_rating;;
+		_-> rrel_3:: rrel_assign:: rrel_scp_var:: rrel_const:: rrel_node:: rrel_node_link:: .._average_rating;;
+		_-> rrel_4:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_to_arc_from_object_to_rating;;
+		_-> rrel_5:: rrel_fixed:: rrel_scp_const:: nrel_average_rating;;
+
+
+		_=> nrel_then:: .._print_that_average_rating_is_found;;
+		_=> nrel_else:: .._print_that_average_rating_is_not_found;;
+	*);;
+
+	_-> .._print_that_average_rating_is_found
+	(*
+		<-_ printNl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [Average rating is found for specified object];;
+
+		_=> nrel_goto:: .._check_object_average_rating;;
+	*);;
+
+	_-> .._check_object_average_rating
+	(*
+		<-_ ifGr;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: .._average_rating;;
+		_-> rrel_2:: rrel_fixed:: rrel_scp_const:: [4.0];;
+
+		_=> nrel_then:: .._check_object_class;;
+		_=> nrel_else:: .._get_next_object;;
+	*);;
+
+
+	_-> .._check_object_class
+	(*
+		<-_ searchSetStr3;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: concept_object;;
+		_-> rrel_2:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_from_class_to_object;;
+		_-> rrel_3:: rrel_fixed:: rrel_scp_var:: .._object;;
+
+		_-> rrel_set_2:: rrel_fixed:: rrel_scp_var:: .._result_objects;;
+
+		_=> nrel_goto:: .._add_object_to_result_objects_set;;
+	*);;
+
+	_-> .._add_object_to_result_objects_set
+	(*
+		<-_ genElStr3;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: .._result_objects;;
+		_-> rrel_2:: rrel_assign:: rrel_scp_var:: rrel_const_perm_pos_arc:: .._arc_from_result_objects_set_to_object;;
+		_-> rrel_3:: rrel_fixed:: rrel_scp_var:: .._object;;
+
+		_=> nrel_goto:: .._print_that_object_was_added_to_result_objects_set;;
+	*);;
+
+	_-> .._print_that_object_was_added_to_result_objects_set
+	(*
+		<-_ printNl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [object was added to result objects set];;
+
+		_=> nrel_goto:: .._get_next_object;;
+	*);;
+
+	_-> .._print_that_average_rating_is_not_found
+	(*
+		<-_ printNl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [Average rating is not found for specified object];;
+
+		_=> nrel_goto:: .._get_next_object;;
+	*);;
+
+	_-> .._print_that_all_objects_were_iterated
+	(*
+		<-_ printNl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [All objects were iterated in specified list];;
+
+		_=> nrel_goto:: .._erase_found_objects_set;;
+	*);;
+
+	_-> .._erase_found_objects_set
+	(*
+		<-_ eraseEl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: rrel_erase:: .._found_objects;;
+
+		_=> nrel_goto:: .._get_next_list;;
+	*);;
+
+	_-> .._print_that_all_lists_were_iterated
+	(*
+		<-_ printNl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [All lists were iterated in specified recommendation_system];;
+
+		_=> nrel_goto:: .._erase_found_lists_set;;
+	*);;
+
+	_-> .._erase_found_lists_set
+	(*
+		<-_ eraseEl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_var:: rrel_erase:: .._found_lists;;
+
+		_=> nrel_goto:: .._return_result;;
+	*);;
+
+	_-> .._print_that_specified_argument_is_not_recommendation_system
+	(*
+		<-_ printNl;;
+
+		_-> rrel_1:: rrel_fixed:: rrel_scp_const:: [Specified argument is not recommendation_system];;
+
+		_=> nrel_goto:: .._return_result;;
+	*);;
+
+	_-> .._return_result
+	(*
+		<-_ return;;
+	*);;
+*);;
+*];;

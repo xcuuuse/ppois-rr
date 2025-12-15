@@ -1,0 +1,7 @@
+square_mir
+=> nrel_main_idtf:
+  [Площадь Мира]
+  (*
+    <- lang_ru;;
+  *);
+<- concept_square;;

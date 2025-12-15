@@ -1,0 +1,9 @@
+street_lenina
+=> nrel_main_idtf:
+  [Улица Ленина]
+  (*
+    <- lang_ru;;
+  *);
+<- concept_street;
+=> nrel_street_length:
+  [1.2];;

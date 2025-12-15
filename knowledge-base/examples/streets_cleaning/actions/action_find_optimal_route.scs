@@ -1,0 +1,10 @@
+action_find_optimal_route
+<- sc_node_class;
+<- concept_class;
+=> nrel_main_idtf:
+  [действие нахождения оптимального пути]
+  (*
+    <- lang_ru;;
+  *);
+<= nrel_inclusion:
+  concept_information_action;;

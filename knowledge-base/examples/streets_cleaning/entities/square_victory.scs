@@ -1,0 +1,7 @@
+square_victory
+=> nrel_main_idtf:
+  [Площадь Победы]
+  (*
+    <- lang_ru;;
+  *);
+<- concept_square;;

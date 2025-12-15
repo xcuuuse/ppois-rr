@@ -1,0 +1,9 @@
+street_soviet
+=> nrel_main_idtf:
+  [Улица Советская]
+  (*
+    <- lang_ru;;
+  *);
+<- concept_street;
+=> nrel_street_length:
+  [0.8];;

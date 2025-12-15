@@ -1,0 +1,9 @@
+street_mir
+=> nrel_main_idtf:
+  [Улица Мира]
+  (*
+    <- lang_ru;;
+  *);
+<- concept_street;
+=> nrel_street_length:
+  [0.6];;

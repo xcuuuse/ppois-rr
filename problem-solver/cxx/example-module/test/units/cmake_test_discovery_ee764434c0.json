@@ -1,0 +1,43 @@
+{
+  "tests": 5,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "NumberUtilsTest",
+      "tests": 3,
+      "testsuite": [
+        {
+          "name": "isPositiveIntegerTest",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/example-module\/test\/units\/testNumberUtils.cpp",
+          "line": 21
+        },
+        {
+          "name": "resolveEistingNumberTest",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/example-module\/test\/units\/testNumberUtils.cpp",
+          "line": 31
+        },
+        {
+          "name": "resolveNonExistingNumberTest",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/example-module\/test\/units\/testNumberUtils.cpp",
+          "line": 44
+        }
+      ]
+    },
+    {
+      "name": "PathSearchAgentTest",
+      "tests": 2,
+      "testsuite": [
+        {
+          "name": "shortestPathByStepsIsShortestBySteps",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/example-module\/test\/units\/testPathSearchAgent.cpp",
+          "line": 153
+        },
+        {
+          "name": "shortestPathByStepsIsNotShortestBySteps",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/example-module\/test\/units\/testPathSearchAgent.cpp",
+          "line": 162
+        }
+      ]
+    }
+  ]
+}

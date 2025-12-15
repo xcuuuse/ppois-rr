@@ -1,0 +1,9 @@
+avenue_gagarin
+=> nrel_main_idtf:
+  [Проспект Гагарина]
+  (*
+    <- lang_ru;;
+  *);
+<- concept_street;
+=> nrel_street_length:
+  [2.1];;

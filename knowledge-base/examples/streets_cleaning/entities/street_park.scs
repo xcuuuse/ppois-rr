@@ -1,0 +1,9 @@
+street_park
+=> nrel_main_idtf:
+  [Улица Парковая]
+  (*
+    <- lang_ru;;
+  *);
+<- concept_street;
+=> nrel_street_length:
+  [0.9];;
