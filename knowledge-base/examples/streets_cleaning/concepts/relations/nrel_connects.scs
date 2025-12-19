@@ -5,18 +5,8 @@ nrel_connects
     (*
         <- lang_ru;;
     *);
-<<<<<<< HEAD
-    [connects*]
-    (*
-    	<- lang_en;;
-    *);
 => nrel_first_domain:
     concept_street;
 => nrel_second_domain:
     concept_intersection;;
-=======
-=> nrel_first_domain:
-    concept_street;
-=> nrel_second_domain:
-    concept_intersection;;
->>>>>>> 19391cb (yevik.modified kb, finished 1st agent(hope successfully))
+
