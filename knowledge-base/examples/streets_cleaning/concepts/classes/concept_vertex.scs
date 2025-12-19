@@ -8,8 +8,6 @@ concept_vertex
   [vertex]
   (*
     <- lang_en;;
-<<<<<<< HEAD
-  *);
-=======
   *);;
->>>>>>> 19391cb (yevik.modified kb, finished 1st agent(hope successfully))
+
+
