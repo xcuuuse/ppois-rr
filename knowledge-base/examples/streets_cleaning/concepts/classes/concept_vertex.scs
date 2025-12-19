@@ -1,0 +1,11 @@
+concept_vertex
+<- sc_node_class;
+=> nrel_main_idtf:
+  [вершина]
+  (*
+    <- lang_ru;;
+  *);
+  [vertex]
+  (*
+    <- lang_en;;
+  *);
