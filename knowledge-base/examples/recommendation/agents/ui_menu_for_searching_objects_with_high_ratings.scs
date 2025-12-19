@@ -1,0 +1,29 @@
+ui_menu_for_searching_objects_with_high_ratings
+<- ui_user_command_class_atom;
+<- ui_user_command_class_view_kb;
+=> nrel_main_idtf:
+	[Найти объекты заданной системы рекомендаций с высокими оценками]
+	(*
+		<- lang_ru;;
+	*);
+	[Search objects of recommendation system with high ratings]
+	(*
+		<- lang_en;;
+	*);
+=> ui_nrel_command_template:
+	[*
+		action_search_objects_with_high_ratings _-> .._action
+		(*
+			_-> rrel_1:: ui_arg_1;;
+		*);;
+		.._action <-_ action;;
+	*];
+=> ui_nrel_command_lang_template:
+	[Найти объекты $ui_arg_1 с высокими оценками]
+	(*
+		<- lang_ru;;
+	*);
+	[Search objects of $ui_arg_1 with high ratings]
+	(*
+		<- lang_en;;
+	*);;

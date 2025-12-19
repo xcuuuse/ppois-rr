@@ -1,0 +1,11 @@
+rrel_start_point
+<- sc_node_role_relation;
+=> nrel_main_idtf:
+    [начальная точка маршрута']
+    (*
+        <- lang_ru;;
+    *);
+=> nrel_first_domain:
+    concept_street_graph;
+=> nrel_second_domain:
+    concept_intersection;;

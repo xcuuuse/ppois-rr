@@ -95,5 +95,6 @@
         "forward_list": "cpp",
         "list": "cpp",
         "any": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "enabled"
 }

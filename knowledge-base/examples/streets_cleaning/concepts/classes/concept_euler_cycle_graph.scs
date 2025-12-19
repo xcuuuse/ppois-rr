@@ -1,0 +1,7 @@
+concept_euler_cycle_graph
+<- sc_node_class;
+=> nrel_main_idtf:
+    [граф с эйлеровым циклом]
+    (*
+        <- lang_ru;;
+    *);;
