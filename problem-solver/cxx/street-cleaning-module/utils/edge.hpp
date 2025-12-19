@@ -3,8 +3,8 @@
 struct Edge{
 public:
   ScAddr street;
-  bool visited;
   ScAddr intersection;
+  bool isUsed;
   bool operator == (Edge const & other) const
   {
     return street == other.street && intersection == other.intersection;

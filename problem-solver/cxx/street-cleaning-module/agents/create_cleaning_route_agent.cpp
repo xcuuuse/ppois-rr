@@ -6,7 +6,7 @@
 #include <sc-memory/sc_link.hpp>
 
 #include "keynodes/graph_keynodes.hpp"
-//#include "errors/AgentsErrors.hpp"
+#include "errors/agent_errors.hpp"
 
 #include <stack>
 #include <map>
@@ -43,14 +43,17 @@ ScResult CreateCleaningRouteAgent::DoProgram(ScAction & action)
 
   try
   {
+    // Добавляем фиктивные улицы, чтобы сделать все вершины чётной степени (условие Эйлера)
     UpgradeToEuler(networkAddr, tempElements);
     m_logger.Info("Граф подготовлен. Временных элементов: " + std::to_string(tempElements.size()));
 
     ScAddr startVertex = GetStartVertex(networkAddr);
 
+    // Строим эйлеров цикл в модифицированном графе
     ScAddrVector route = FindEulerCycle(networkAddr);
     m_logger.Info("Маршрут найден: " + std::to_string(route.size()) + " улиц");
 
+    // Формируем SC-структуру результата
     ScStructure resultStructure = CreateCleaningRouteStructure(networkAddr, route);
     action.SetResult(resultStructure);
 
@@ -70,14 +73,16 @@ ScResult CreateCleaningRouteAgent::DoProgram(ScAction & action)
 ScAddrVector CreateCleaningRouteAgent::FindEulerCycle(ScAddr const & networkAddr)
 {
   ScAddr startVertex = GetStartVertex(networkAddr);
-  AdjList adj;
+  AdjList adj;  // Список смежности: вершина -> список рёбер
 
   ScAddrUnorderedSet processedStreets;
 
+  // Проходим по всем перекрёсткам в сети
   ScIterator3Ptr intersectionIt = m_context.CreateIterator3(networkAddr, ScType::ConstPermPosArc, ScType::Unknown);
   while (intersectionIt->Next())
   {
     ScAddr const vertexAddr = intersectionIt->Get(2);
+    // Проверяем, является ли элемент перекрёстком
     ScIterator3Ptr const isIntersectionIt =
         m_context.CreateIterator3(GraphKeynodes::concept_intersection, ScType::ConstPermPosArc, vertexAddr);
 
@@ -85,6 +90,7 @@ ScAddrVector CreateCleaningRouteAgent::FindEulerCycle(ScAddr const & networkAddr
     {
       ScAddr intersection = intersectionIt->Get(2);
 
+      // Находим все улицы, инцидентные этому перекрёстку
       ScIterator5Ptr streetIt = m_context.CreateIterator5(
           ScType::Unknown,
           ScType::ConstCommonArc,
@@ -101,27 +107,30 @@ ScAddrVector CreateCleaningRouteAgent::FindEulerCycle(ScAddr const & networkAddr
 
         processedStreets.insert(streetNode);
 
-        ScAddr intersection1, intersection2;
-        ScIterator5Ptr neighborIt = m_context.CreateIterator5(
+        // Находим второй конец улицы (другой перекрёсток)
+        ScIterator5Ptr neighbourIt = m_context.CreateIterator5(
             streetNode,
             ScType::ConstCommonArc,
             ScType::Unknown,
             ScType::ConstPermPosArc,
             GraphKeynodes::nrel_connects);
 
-        while (neighborIt->Next())
+        while (neighbourIt->Next())
         {
-          ScAddr neighbor = neighborIt->Get(2);
-          if (neighbor != intersection)
+          ScAddr neighbour = neighbourIt->Get(2);
+          if (neighbour != intersection)
           {
-            adj[intersection].push_back({streetNode, neighbor, false});
+            // Добавляем ориентированное ребро (улицу) в список смежности
+            // Важно: порядок полей в Edge — street, isUsed, intersection
+            adj[intersection].push_back({streetNode, neighbour, false});
           }
         }
       }
     }
   }
 
-  std::stack<std::pair<ScAddr, ScAddr>> pathStack;
+  // Алгоритм поиска эйлерова цикла (Hierholzer)
+  std::stack<std::pair<ScAddr, ScAddr>> pathStack; // (текущая вершина, улица, по которой пришли)
   ScAddrVector path;
 
   pathStack.push({startVertex, ScAddr::Empty});
@@ -139,6 +148,7 @@ ScAddrVector CreateCleaningRouteAgent::FindEulerCycle(ScAddr const & networkAddr
         {
           edge.isUsed = true;
 
+          // Помечаем обратное ребро как использованное (граф неориентированный)
           for (auto & backEdge : adj[edge.intersection])
           {
             if (backEdge.street == edge.street && backEdge.intersection == currentV && !backEdge.isUsed)
@@ -156,9 +166,11 @@ ScAddrVector CreateCleaningRouteAgent::FindEulerCycle(ScAddr const & networkAddr
     }
     if (!hasUnusedEdge)
     {
+      // Завершаем обход текущей ветви
       ScAddr street = pathStack.top().second;
       if (street.IsValid())
       {
+        // Если улица временная — подставляем оригинал из TempToMapping
         if (TempToMapping.find(street) != TempToMapping.end())
         {
           path.push_back(TempToMapping[street]);
@@ -175,6 +187,7 @@ ScAddrVector CreateCleaningRouteAgent::FindEulerCycle(ScAddr const & networkAddr
   return path;
 }
 
+// Возвращает степень вершины (из связанного узла-ссылки)
 int CreateCleaningRouteAgent::GetVertexDegree(ScAddr const & vertexAddr)
 {
   ScIterator5Ptr it = m_context.CreateIterator5(
@@ -196,6 +209,7 @@ int CreateCleaningRouteAgent::GetVertexDegree(ScAddr const & vertexAddr)
     throw VertexError("Степень вершины не посчитана");
 }
 
+// Получает стартовую вершину маршрута из rrel_start_point
 ScAddr CreateCleaningRouteAgent::GetStartVertex(ScAddr const & networkAddr)
 {
   ScIterator5Ptr const it = m_context.CreateIterator5(
@@ -214,6 +228,7 @@ ScAddr CreateCleaningRouteAgent::GetStartVertex(ScAddr const & networkAddr)
     throw StartNodeNotFoundError("Начальная вершина не задана");
 }
 
+// Удаляет временно созданные элементы (дубликаты улиц)
 void CreateCleaningRouteAgent::Cleanup(ScAddrVector const & tempElements)
 {
   for (auto const & item : tempElements)
@@ -225,6 +240,7 @@ void CreateCleaningRouteAgent::Cleanup(ScAddrVector const & tempElements)
   }
 }
 
+// Формирует SC-структуру маршрута: кортеж улиц + длина
 ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const & networkAddr, ScAddrVector route)
 {
   ScStructure result = m_context.GenerateStructure();
@@ -247,6 +263,7 @@ ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const 
 
   for (auto const & node : route)
   {
+    // Добавляем улицу в кортеж с позиционным отношением
     ScAddr const & positionNumber = m_context.ResolveElementSystemIdentifier("rrel_" + std::to_string(pos));
 
     ScAddr const & arcPermPosAddr = m_context.GenerateConnector(ScType::ConstPermPosArc, routeTuple, node);
@@ -254,12 +271,11 @@ ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const 
     result << node << positionNumber << arcPermPosAddr << rrelPosition;
 
     double streetLength = GetStreetLength(node);
-
     length += streetLength;
-
     pos++;
   }
 
+  // Добавляем общую длину маршрута
   ScAddr const & routeLength = m_context.GenerateLink(ScType::ConstNodeLink);
   m_context.SetLinkContent(routeLength, std::to_string(length));
 
@@ -272,15 +288,18 @@ ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const 
   return result;
 }
 
+// Приводит граф к эйлерову виду, добавляя кратчайшие дублирующие пути между нечётными вершинами
 void CreateCleaningRouteAgent::UpgradeToEuler(ScAddr const & networkAddr, ScAddrVector & tempElements)
 {
+  // Если граф уже помечен как эйлеров — ничего не делаем
   ScIterator3Ptr networkIt = m_context.CreateIterator3(
-      GraphKeynodes::concept_graph_with_euler_cycle, ScType::ConstPermPosArc, networkAddr);
+      GraphKeynodes::concept_euler_cycle_graph, ScType::ConstPermPosArc, networkAddr);
   if (networkIt->Next())
   {
     return;
   }
 
+  // Собираем все вершины нечётной степени
   ScAddrVector oddVertices;
   ScIterator3Ptr intersectionIt = m_context.CreateIterator3(networkAddr, ScType::ConstPermPosArc, ScType::Unknown);
 
@@ -289,12 +308,11 @@ void CreateCleaningRouteAgent::UpgradeToEuler(ScAddr const & networkAddr, ScAddr
     ScAddr const vertexAddr = intersectionIt->Get(2);
 
     ScIterator3Ptr const isIntersectionIt =
-        m_context.CreateIterator3(StreetCleaningKeynodes::concept_intersection, ScType::ConstPermPosArc, vertexAddr);
+        m_context.CreateIterator3(GraphKeynodes::concept_intersection, ScType::ConstPermPosArc, vertexAddr);
 
     if (isIntersectionIt->Next())
     {
       ScAddr const vertex = vertexAddr;
-
       int degree = GetVertexDegree(vertex);
 
       if (degree % 2 != 0)
@@ -309,9 +327,10 @@ void CreateCleaningRouteAgent::UpgradeToEuler(ScAddr const & networkAddr, ScAddr
   int n = oddVertices.size();
   if (n == 0)
   {
-    return;
+    return; // Граф уже эйлеров
   }
 
+  // Строим матрицу кратчайших расстояний между нечётными вершинами
   std::vector<std::vector<double>> dists(n, std::vector<double>(n));
   std::map<std::pair<int, int>, std::list<ScAddr>> pathsCache;
 
@@ -319,6 +338,251 @@ void CreateCleaningRouteAgent::UpgradeToEuler(ScAddr const & networkAddr, ScAddr
   {
     for (int j = i + 1; j < n; j++)
     {
-      PathResult result = FindShortestPath(oddVertices[i], oddVertices[j]);
+      Route result = FindShortestPath(oddVertices[i], oddVertices[j]);
 
+      if (result.edges.empty() && oddVertices[i] != oddVertices[j])
+        result.distance = INF;
 
+      dists[i][j] = dists[j][i] = result.distance;
+      pathsCache[{i, j}] = result.edges;
+      pathsCache[{j, i}] = ScAddrList(result.edges.rbegin(), result.edges.rend());
+    }
+  }
+
+  // Решаем задачу минимального паросочетания на нечётных вершинах
+  int fullMask = (1 << n) - 1;
+  std::vector<double> memo(1 << n, -1.0);
+  double minWeight = SolveMatching(fullMask, n, dists, memo);
+  m_logger.Info("Минимальный вес паросочетания: " + std::to_string(minWeight));
+
+  // Восстанавливаем пары вершин для дублирования путей
+  std::vector<std::pair<int, int>> bestPairs;
+  GetPairs(fullMask, n, dists, memo, bestPairs);
+
+  // Дублируем улицы по найденным путям (создаём временные элементы)
+  for (auto const & pair : bestPairs)
+  {
+    ScAddrList edgesToDuplicate = pathsCache[pair];
+
+    for (ScAddr const & street : edgesToDuplicate)
+    {
+      // Находим два конца улицы
+      ScIterator5Ptr endsIt = m_context.CreateIterator5(
+          street,
+          ScType::ConstCommonArc,
+          ScType::Unknown,
+          ScType::ConstPermPosArc,
+          GraphKeynodes::nrel_connects);
+
+      ScAddr intersection1, intersection2;
+      bool foundEnds = false;
+      if (endsIt->Next()) intersection1 = endsIt->Get(2);
+      if (endsIt->Next()) { intersection2 = endsIt->Get(2); foundEnds = true; }
+      if (!foundEnds) continue;
+
+      // Создаём копию улицы
+      ScAddr tempStreet = m_context.GenerateNode(ScType::ConstNode);
+      TempToMapping[tempStreet] = street;
+
+      // Присоединяем к тем же перекрёсткам
+      ScAddr arcCommonAddr1 = m_context.GenerateConnector(ScType::ConstCommonArc, tempStreet, intersection1);
+      ScAddr arcCommonAddr2 = m_context.GenerateConnector(ScType::ConstCommonArc, tempStreet, intersection2);
+      ScAddr rel1 = m_context.GenerateConnector(ScType::ConstPermPosArc, GraphKeynodes::nrel_connects, arcCommonAddr1);
+      ScAddr rel2 = m_context.GenerateConnector(ScType::ConstPermPosArc, GraphKeynodes::nrel_connects, arcCommonAddr2);
+
+      tempElements.push_back(tempStreet);
+      tempElements.push_back(arcCommonAddr1);
+      tempElements.push_back(arcCommonAddr2);
+      tempElements.push_back(rel1);
+      tempElements.push_back(rel2);
+    }
+  }
+}
+
+// Находит кратчайший путь между двумя перекрёстками (алгоритм Дейкстры)
+Route CreateCleaningRouteAgent::FindShortestPath(ScAddr const & start, ScAddr const & end)
+{
+  if (start == end)
+  {
+    return {0.0, {}};
+  }
+
+  struct PQCompare
+  {
+    bool operator()(PQPair const & a, PQPair const & b) const
+    {
+      return a.first > b.first;
+    }
+  };
+  std::priority_queue<PQPair, std::vector<PQPair>, PQCompare> pq;
+
+  ScAddrToValueUnorderedMap<double> dist;
+  ScAddrToValueUnorderedMap<ScAddr> parentNode;
+  ScAddrToValueUnorderedMap<ScAddr> parentEdge;
+  ScAddrToValueUnorderedMap<bool> visited;
+
+  dist[start] = 0.0;
+  pq.push({0.0, start});
+
+  while (!pq.empty())
+  {
+    auto [length, intersection] = pq.top();
+    pq.pop();
+
+    if (visited[intersection])
+      continue;
+    visited[intersection] = true;
+
+    if (intersection == end)
+    {
+      break;
+    }
+
+    // Обходим все соседние улицы
+    ScIterator5Ptr streetIt = m_context.CreateIterator5(
+        ScType::Unknown,
+        ScType::ConstCommonArc,
+        intersection,
+        ScType::ConstPermPosArc,
+        GraphKeynodes::nrel_connects);
+    while (streetIt->Next())
+    {
+      ScAddr street = streetIt->Get(0);
+      double weight = GetStreetLength(street);
+
+      // Находим соседний перекрёсток
+      ScIterator5Ptr neighbourIt = m_context.CreateIterator5(
+          street,
+          ScType::ConstCommonArc,
+          ScType::Unknown,
+          ScType::ConstPermPosArc,
+          GraphKeynodes::nrel_connects);
+
+      while (neighbourIt->Next())
+      {
+        ScAddr neighbour = neighbourIt->Get(2);
+        if (neighbour == intersection)
+          continue;
+
+        double newDist = length + weight;
+
+        if (dist.find(neighbour) == dist.end() || newDist < dist[neighbour])
+        {
+          dist[neighbour] = newDist;
+          parentNode[neighbour] = intersection;
+          parentEdge[neighbour] = street;
+          pq.push({newDist, neighbour});
+        }
+      }
+    }
+  }
+  if (dist.find(end) == dist.end())
+  {
+    return {INF, {}};
+  }
+
+  // Восстанавливаем путь
+  ScAddrList path;
+  ScAddr curr = end;
+  while (curr != start)
+  {
+    if (parentEdge.find(curr) == parentEdge.end())
+    {
+      return {INF, {}};
+    }
+    path.push_front(parentEdge[curr]);
+    curr = parentNode[curr];
+  }
+
+  return {dist[end], path};
+}
+
+// Получает длину улицы из SC-памяти
+double CreateCleaningRouteAgent::GetStreetLength(ScAddr const & streetAddr)
+{
+  ScIterator5Ptr it = m_context.CreateIterator5(
+      streetAddr,
+      ScType::ConstCommonArc,
+      ScType::ConstNodeLink,
+      ScType::ConstPermPosArc,
+      GraphKeynodes::nrel_street_length);
+
+  if (it->Next())
+  {
+    ScAddr linkAddr = it->Get(2);
+    std::string lengthStr;
+
+    if (m_context.GetLinkContent(linkAddr, lengthStr))
+    {
+      double length = std::stod(lengthStr);
+      return length;
+    }
+  }
+
+  throw NodeIsNotStreetError("Узел не является улицей: " + m_context.GetElementSystemIdentifier(streetAddr));
+}
+
+// Решает задачу минимального паросочетания методом динамического программирования по маскам
+double CreateCleaningRouteAgent::SolveMatching(
+    int mask,
+    int n,
+    std::vector<std::vector<double>> const & dists,
+    std::vector<double> & memo)
+{
+  if (mask == 0)
+    return 0.0;
+  if (memo[mask] >= 0.0)
+    return memo[mask];
+
+  double minVal = INF;
+
+  int i = 0;
+  while (!((mask >> i) & 1))
+    i++;
+
+  int maskWithoutI = mask ^ (1 << i);
+
+  for (int j = i + 1; j < n; j++)
+  {
+    if ((mask >> j) & 1)
+    {
+      double res = SolveMatching(maskWithoutI ^ (1 << j), n, dists, memo);
+      if (dists[i][j] + res < minVal)
+        minVal = dists[i][j] + res;
+    }
+  }
+  return memo[mask] = minVal;
+}
+
+// Восстанавливает конкретные пары вершин из решения DP
+void CreateCleaningRouteAgent::GetPairs(
+    int mask,
+    int n,
+    std::vector<std::vector<double>> const & dists,
+    std::vector<double> const & memo,
+    std::vector<std::pair<int, int>> & resultPairs)
+{
+  if (!mask)
+    return;
+
+  int i = 0;
+  while (!((mask >> i) & 1))
+    i++;
+
+  double minVal = memo[mask];
+  int maskWithoutI = mask ^ (1 << i);
+
+  for (int j = i + 1; j < n; j++)
+  {
+    if ((mask >> j) & 1)
+    {
+      double subRes = memo[maskWithoutI ^ (1 << j)];
+      if (subRes >= 0.0 && std::abs(dists[i][j] + subRes - minVal) < EPS)
+      {
+        resultPairs.push_back({i, j});
+        GetPairs(maskWithoutI ^ (1 << j), n, dists, memo, resultPairs);
+        return;
+      }
+    }
+  }
+}

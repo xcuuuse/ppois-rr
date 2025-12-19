@@ -17,13 +17,13 @@ public:
   }
 };
 
-class VertexDegreeNotFoundError : public std::exception
+class VertexError : public std::exception
 {
 private:
   std::string msg;
 
 public:
-  explicit VertexDegreeNotFoundError(std::string const & msg) {}
+  explicit VertexError(std::string const & msg) {}
 
   char const * what()
   {
