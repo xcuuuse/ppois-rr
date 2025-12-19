@@ -1,0 +1,15 @@
+rrel_position
+<- sc_node_role_relation;
+=> nrel_main_idtf:
+    [позиция в маршруте']
+    (*
+        <- lang_ru;;
+    *);
+    [position in marshroute']
+    (*
+    	<- lang_en;;
+    *);
+=> nrel_first_domain:
+    sc_node_tuple;
+=> nrel_second_domain:
+    sc_link;;

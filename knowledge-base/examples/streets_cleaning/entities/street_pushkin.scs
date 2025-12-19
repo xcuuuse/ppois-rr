@@ -6,4 +6,8 @@ street_pushkin
   *);
 <- concept_street;
 => nrel_street_length:
-  [1.5];;
+  [1.5];
+=> nrel_connects:
+     sovetskaya_pushkina_intersection;
+     pushkina_parkovaya_intersection;
+     square_pobedy;;

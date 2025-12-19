@@ -6,4 +6,7 @@ street_soviet
   *);
 <- concept_street;
 => nrel_street_length:
-  [0.8];;
+  [0.8];
+=> nrel_connects:
+    lenina_sovetskaya_intersection;
+    sovetskaya_pushkina_intersection;;

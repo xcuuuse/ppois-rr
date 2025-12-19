@@ -8,4 +8,6 @@ concept_square
   [square]
   (*
     <- lang_en;;
-  *);;
+  *);
+  <= nrel_inclusion:
+    concept_intersection;;
