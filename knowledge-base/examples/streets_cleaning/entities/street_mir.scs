@@ -7,6 +7,6 @@ street_mir
 <- concept_street;
 => nrel_street_length:
   [0.6];
-=> nrel_connects:
+=> nrel_connect:
     lenina_mira_intersection;
     gagarin_mira_intersection;;

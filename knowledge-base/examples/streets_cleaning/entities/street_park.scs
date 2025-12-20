@@ -7,6 +7,6 @@ street_park
 <- concept_street;
 => nrel_street_length:
   [0.9];
-=> nrel_connects:
+=> nrel_connect:
     pushkina_parkovaya_intersection;
     parkovaya_gagarin_intersection;;
