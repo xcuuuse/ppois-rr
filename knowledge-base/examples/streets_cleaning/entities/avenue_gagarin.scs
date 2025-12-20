@@ -7,7 +7,7 @@ avenue_gagarin
 <- concept_street;
 => nrel_street_length:
   [2.1];
-=> nrel_connect:
+=> nrel_connects:
      square_mir;
      gagarin_mira_intersection;
      parkovaya_gagarin_intersection;
