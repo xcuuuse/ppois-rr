@@ -21,7 +21,7 @@ CalculatingAndAnalysDegreeOfVerticesAgent::CalculatingAndAnalysDegreeOfVerticesA
 // Метод возвращает идентификатор действия, которое обрабатывает этот агент
 ScAddr CalculatingAndAnalysDegreeOfVerticesAgent::GetActionClass() const
 {
-  return GraphKeynodes::action_calculate_and_analys_degree_of_vertices;
+  return GraphKeynodes::action_calculating_degree_of_vertices;
 }
 
 // ОСНОВНОЙ МЕТОД: Выполняется при запуске агента
@@ -44,14 +44,14 @@ ScResult CalculatingAndAnalysDegreeOfVerticesAgent::DoProgram(ScAction & action)
   ScAddrToValueUnorderedMap<int> vertices = CalculateVertexesDegrees(networkAddr);
 
   // ШАГ 5: Определяем, есть ли Эйлеров цикл в графе
-  EulerianStatus graphStatus = GetGraphEulerianStatus(networkAddr, vertices);
+  Euler graphStatus = GetGraphEulerianStatus(networkAddr, vertices);
 
   // ШАГ 6: Создаем структуру с результатами анализа
   ScStructure analysisResult = CreateAnalysisResult(networkAddr, vertices, graphStatus);
   action.SetResult(analysisResult);
 
   // ШАГ 7: Запускаем агент для поиска маршрута
-  ScAction routeAction = m_context.GenerateAction(GraphKeynodes::action_find_route);
+  ScAction routeAction = m_context.GenerateAction(GraphKeynodes::action_find_optimal_route);
   routeAction.SetArguments(networkAddr);
   routeAction.Initiate();
 
@@ -100,7 +100,7 @@ ScAddrToValueUnorderedMap<int> CalculatingAndAnalysDegreeOfVerticesAgent::Calcul
           ScType::ConstCommonArc,    // Дуга к вершине
           vertexAddr,                // Вершина (перекресток/площадь)
           ScType::ConstPermPosArc,   // Дуга к отношению
-          GraphKeynodes::nrel_connect); // Отношение "соединен с"
+          GraphKeynodes::nrel_connects); // Отношение "соединен с"
 
       while (vertexIt5->Next())  // Пока находим связанных улиц
       {
@@ -129,7 +129,7 @@ ScAddrToValueUnorderedMap<int> CalculatingAndAnalysDegreeOfVerticesAgent::Calcul
 
 
 // МЕТОД: Определение типа графа (есть ли Эйлеров цикл)
-EulerianStatus CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
+Euler CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
     ScAddr const & networkAddr,
     ScAddrToValueUnorderedMap<int> vertices)  // Словарь перекрестков и их степеней
 {
@@ -179,7 +179,7 @@ EulerianStatus CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus
         ScType::ConstCommonArc,    // Дуга от улицы к перекрестку
         currentIntersection,       // Текущий перекресток
         ScType::ConstPermPosArc,   // Дуга к отношению
-        GraphKeynodes::nrel_connect); // Отношение "соединен с"
+        GraphKeynodes::nrel_connects); // Отношение "соединен с"
 
     while (streetIt->Next())  // Для каждой найденной улицы
     {
@@ -191,7 +191,7 @@ EulerianStatus CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus
           ScType::ConstCommonArc,  // Дуга от улицы к соседнему перекрестку
           ScType::Unknown,         // Соседний перекресток
           ScType::ConstPermPosArc, // Дуга к отношению
-          GraphKeynodes::nrel_connect); // Отношение "соединен с"
+          GraphKeynodes::nrel_connects); // Отношение "соединен с"
 
       while (neighborIt->Next())  // Для каждого найденного соседа
       {
@@ -218,11 +218,11 @@ EulerianStatus CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus
   // 2. Все вершины связаны (visitedVertices.size() == verticesCount)
   if (oddDegreeCount == 0 && visitedVertices.size() == verticesCount)
   {
-    return EulerianStatus::Cycle;  // Граф имеет Эйлеров цикл
+    return Euler::Cycle;  // Граф имеет Эйлеров цикл
   }
   else
   {
-    return EulerianStatus::None;   // Эйлерова цикла нет
+    return Euler::None;   // Эйлерова цикла нет
   }
 }
 
@@ -230,13 +230,13 @@ EulerianStatus CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus
 ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
     ScAddr const & networkAddr,             // Адрес дорожной сети
     ScAddrToValueUnorderedMap<int> vertices, // Словарь перекрестков и их степеней
-    EulerianStatus status)                  // Статус графа
+    Euler status)                  // Статус графа
 {
   // Создаем новую структуру в памяти для хранения результатов
   ScStructure resultStructure = m_context.GenerateStructure();
 
   // ШАГ 1: Определяем тип графа и создаем соответствующую связь
-  if (status == EulerianStatus::Cycle)
+  if (status == Euler::Cycle)
   {
     // Создаем связь: сеть -> является Эйлеровым циклом
     ScAddr const graphType = m_context.GenerateConnector(
