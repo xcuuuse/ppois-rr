@@ -94,7 +94,7 @@ ScAddrToValueUnorderedMap<int> CalculatingAndAnalysDegreeOfVerticesAgent::Calcul
       int degree = 0;  // Счетчик степени вершины
       
       // Считаем количество улиц, связанных с этой вершиной
-      // Ищем все дуги, которые через отношение nrel_connect связывают что-то с вершиной
+      // Ищем все дуги, которые через отношение nrel_connects связывают что-то с вершиной
       ScIterator5Ptr const vertexIt5 = m_context.CreateIterator5(
           ScType::Unknown,           // Что связано с вершиной (улица)
           ScType::ConstCommonArc,    // Дуга к вершине
