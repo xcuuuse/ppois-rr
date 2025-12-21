@@ -21,7 +21,7 @@ CalculatingAndAnalysDegreeOfVerticesAgent::CalculatingAndAnalysDegreeOfVerticesA
 // Метод возвращает идентификатор действия, которое обрабатывает этот агент
 ScAddr CalculatingAndAnalysDegreeOfVerticesAgent::GetActionClass() const
 {
-  return GraphKeynodes::action_calculating_degree_of_vertices;
+  return GraphKeynodes::action_calculating_and_analys_degree_of_vertices;
 }
 
 // ОСНОВНОЙ МЕТОД: Выполняется при запуске агента

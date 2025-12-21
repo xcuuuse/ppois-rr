@@ -1,0 +1,8 @@
+action_calculating_and_analys_degree_of_vertices
+<- sc_node_class;
+<- concept_class;
+=> nrel_main_idtf:
+    [действие подсчёта и анализа степеней вершин графа]
+    (* 
+        <- lang_ru;;
+    *);;

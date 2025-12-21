@@ -3,8 +3,8 @@
 class GraphKeynodes: public ScKeynodes{
 public:
     //TODO: написать формализацию действия подсчёта степени вершин (done)
-    static inline ScKeynode const action_calculating_degree_of_vertices{
-            "action_calculating_degree_of_vertices", ScType::ConstNodeClass};
+    static inline ScKeynode const action_calculating_and_analys_degree_of_vertices{
+            "action_calculating_and_analys_degree_of_vertices", ScType::ConstNodeClass};
     
     static inline ScKeynode const action_find_optimal_route{
     "action_find_optimal_route", ScType::ConstNodeClass};
