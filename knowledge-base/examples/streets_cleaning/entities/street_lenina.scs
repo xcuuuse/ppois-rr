@@ -7,7 +7,7 @@ street_lenina
 <- concept_street;
 => nrel_street_length:
   [1.2];
-=> nrel_connect:
+=> nrel_connects:
     square_mir;
     lenina_mira_intersection;
     lenina_sovetskaya_intersection;;

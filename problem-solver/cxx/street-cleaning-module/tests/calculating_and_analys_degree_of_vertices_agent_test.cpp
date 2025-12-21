@@ -1,8 +1,8 @@
 #include <sc-memory/test/sc_test.hpp>
 #include <sc-memory/sc_memory.hpp>
 
-#include "../agents/CalculatingAndAnalysDegreeOfVerticesAgent.hpp"
-#include "../keynodes/GraphKeynodes.hpp"
+#include "../agents/calculating_and_analys_degree_of_vertices_agent.hpp"
+#include "../keynodes/graph_keynodes.hpp"
 
 using CalculatingAndAnalysDegreeOfVerticesAgentTest = ScMemoryTest;
 
