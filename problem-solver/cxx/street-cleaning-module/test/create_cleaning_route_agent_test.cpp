@@ -1,12 +1,11 @@
 #include <sc-memory/test/sc_test.hpp>
 #include <sc-memory/sc_memory.hpp>
-
 #include "../agents/create_cleaning_route_agent.hpp"
 #include "../keynodes/graph_keynodes.hpp"
 
-using CreateCleaningRouteAgent = ScMemoryTest;
+using CreateCleaningRouteAgentTest = ScMemoryTest;
 
-TEST_F(CreateCleaningRouteAgent, FindEulerianCycleTest)
+TEST_F(CreateCleaningRouteAgentTest, FindOptimalRouteTest)
 {
   m_ctx->SubscribeAgent<CreateCleaningRouteAgent>();
 
@@ -122,7 +121,7 @@ m_ctx->GenerateConnector(ScType::ConstCommonArc, street23, intersection2);
     }
   }
 
-  EXPECT_EQ(routeStreets.size(), 3);
+  EXPECT_EQ(routeStreets.size(), 3); //replace 3
   EXPECT_TRUE(routeStreets.count(street12) > 0);
   EXPECT_TRUE(routeStreets.count(street23) > 0);
   EXPECT_TRUE(routeStreets.count(street31) > 0);

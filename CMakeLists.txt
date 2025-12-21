@@ -35,4 +35,8 @@ find_package(sc-machine REQUIRED)
 find_package(scl-machine REQUIRED)
 find_package(ps-common-lib REQUIRED)
 
+include(GoogleTest)
+find_package(GTest REQUIRED)
+
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/problem-solver)

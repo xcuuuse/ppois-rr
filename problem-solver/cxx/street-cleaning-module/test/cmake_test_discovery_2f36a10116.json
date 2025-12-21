@@ -1,0 +1,53 @@
+{
+  "tests": 7,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "CalculatingAndAnalysDegreeOfVerticesAgentTest",
+      "tests": 6,
+      "testsuite": [
+        {
+          "name": "EulerianGraphWithCycle",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/street-cleaning-module\/test\/calculating_and_analys_degree_of_vertices_agent_test.cpp",
+          "line": 9
+        },
+        {
+          "name": "NonEulerianGraph",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/street-cleaning-module\/test\/calculating_and_analys_degree_of_vertices_agent_test.cpp",
+          "line": 117
+        },
+        {
+          "name": "GraphWithSquare",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/street-cleaning-module\/test\/calculating_and_analys_degree_of_vertices_agent_test.cpp",
+          "line": 236
+        },
+        {
+          "name": "EmptyNetwork",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/street-cleaning-module\/test\/calculating_and_analys_degree_of_vertices_agent_test.cpp",
+          "line": 304
+        },
+        {
+          "name": "DisconnectedGraph",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/street-cleaning-module\/test\/calculating_and_analys_degree_of_vertices_agent_test.cpp",
+          "line": 330
+        },
+        {
+          "name": "InvalidArgument",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/street-cleaning-module\/test\/calculating_and_analys_degree_of_vertices_agent_test.cpp",
+          "line": 406
+        }
+      ]
+    },
+    {
+      "name": "CreateCleaningRouteAgentTest",
+      "tests": 1,
+      "testsuite": [
+        {
+          "name": "FindOptimalRouteTest",
+          "file": "\/home\/yevik\/ostis-example-app\/problem-solver\/cxx\/street-cleaning-module\/test\/create_cleaning_route_agent_test.cpp",
+          "line": 8
+        }
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ TEST_F(CalculatingAndAnalysDegreeOfVerticesAgentTest, EulerianGraphWithCycle)
 {
   m_ctx->SubscribeAgent<CalculatingAndAnalysDegreeOfVerticesAgent>();
 
-  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_degree_of_vertices);
+  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_and_analys_degree_of_vertices);
 
   // Создаем дорожную сеть
   ScAddr const graphAddr = m_ctx->GenerateNode(ScType::ConstNode);
@@ -118,7 +118,7 @@ TEST_F(CalculatingAndAnalysDegreeOfVerticesAgentTest, NonEulerianGraph)
 {
   m_ctx->SubscribeAgent<CalculatingAndAnalysDegreeOfVerticesAgent>();
 
-  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_degree_of_vertices);
+  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_and_analys_degree_of_vertices);
 
   ScAddr const graphAddr = m_ctx->GenerateNode(ScType::ConstNode);
   m_ctx->GenerateConnector(ScType::ConstPermPosArc, GraphKeynodes::concept_street_graph, graphAddr);
@@ -237,7 +237,7 @@ TEST_F(CalculatingAndAnalysDegreeOfVerticesAgentTest, GraphWithSquare)
 {
   m_ctx->SubscribeAgent<CalculatingAndAnalysDegreeOfVerticesAgent>();
 
-  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_degree_of_vertices);
+  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_and_analys_degree_of_vertices);
 
   // Создаем сеть с площадью
   ScAddr const graphAddr = m_ctx->GenerateNode(ScType::ConstNode);
@@ -305,7 +305,7 @@ TEST_F(CalculatingAndAnalysDegreeOfVerticesAgentTest, EmptyNetwork)
 {
   m_ctx->SubscribeAgent<CalculatingAndAnalysDegreeOfVerticesAgent>();
 
-  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_degree_of_vertices);
+  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_and_analys_degree_of_vertices);
 
   // Создаем пустую сеть (без перекрестков и улиц)
   ScAddr const emptyGraphAddr = m_ctx->GenerateNode(ScType::ConstNode);
@@ -331,7 +331,7 @@ TEST_F(CalculatingAndAnalysDegreeOfVerticesAgentTest, DisconnectedGraph)
 {
   m_ctx->SubscribeAgent<CalculatingAndAnalysDegreeOfVerticesAgent>();
 
-  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_degree_of_vertices);
+  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_and_analys_degree_of_vertices);
 
   ScAddr const graphAddr = m_ctx->GenerateNode(ScType::ConstNode);
   m_ctx->GenerateConnector(ScType::ConstPermPosArc, GraphKeynodes::concept_street_graph, graphAddr);
@@ -407,7 +407,7 @@ TEST_F(CalculatingAndAnalysDegreeOfVerticesAgentTest, InvalidArgument)
 {
   m_ctx->SubscribeAgent<CalculatingAndAnalysDegreeOfVerticesAgent>();
 
-  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_degree_of_vertices);
+  ScAction action = m_ctx->GenerateAction(GraphKeynodes::action_calculating_and_analys_degree_of_vertices);
 
   // Не устанавливаем аргументы и запускаем
   EXPECT_TRUE(action.InitiateAndWait());
