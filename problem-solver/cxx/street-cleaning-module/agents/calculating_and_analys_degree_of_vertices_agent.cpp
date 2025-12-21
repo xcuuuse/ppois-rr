@@ -28,31 +28,31 @@ ScAddr CalculatingAndAnalysDegreeOfVerticesAgent::GetActionClass() const
 ScResult CalculatingAndAnalysDegreeOfVerticesAgent::DoProgram(ScAction & action)
 {
   // ШАГ 1: Получаем входной параметр - адрес дорожной сети
-  auto const & [networkAddr] = action.GetArguments<1>();
+  auto const & [graphAddr] = action.GetArguments<1>();
 
   // ШАГ 2: Проверяем существование дорожной сети
-  if (!m_context.IsElement(networkAddr))
+  if (!m_context.IsElement(graphAddr))
   {
     m_logger.Error("Дорожная сеть не найдена");
     return action.FinishWithError();
   }
 
   // ШАГ 3: Логируем начало анализа
-  m_logger.Info("Начало анализа сети: " + m_context.GetElementSystemIdentifier(networkAddr));
+  m_logger.Info("Начало анализа сети: " + m_context.GetElementSystemIdentifier(graphAddr));
   
   // ШАГ 4: Рассчитываем степени всех вершин
-  ScAddrToValueUnorderedMap<int> vertices = CalculateVertexesDegrees(networkAddr);
+  ScAddrToValueUnorderedMap<int> vertices = CalculateVertexesDegrees(graphAddr);
 
   // ШАГ 5: Определяем, есть ли Эйлеров цикл в графе
-  Euler graphStatus = GetGraphEulerianStatus(networkAddr, vertices);
+  Euler graphStatus = GetGraphEulerianStatus(graphAddr, vertices);
 
   // ШАГ 6: Создаем структуру с результатами анализа
-  ScStructure analysisResult = CreateAnalysisResult(networkAddr, vertices, graphStatus);
+  ScStructure analysisResult = CreateAnalysisResult(graphAddr, vertices, graphStatus);
   action.SetResult(analysisResult);
 
   // ШАГ 7: Запускаем агент для поиска маршрута
   ScAction routeAction = m_context.GenerateAction(GraphKeynodes::action_find_optimal_route);
-  routeAction.SetArguments(networkAddr);
+  routeAction.SetArguments(graphAddr);
   routeAction.Initiate();
 
   // ШАГ 8: Логируем успешное завершение
@@ -63,14 +63,14 @@ ScResult CalculatingAndAnalysDegreeOfVerticesAgent::DoProgram(ScAction & action)
 
 
 // МЕТОД: Расчет степеней всех вершин (перекрестков и площадей) в графе
-ScAddrToValueUnorderedMap<int> CalculatingAndAnalysDegreeOfVerticesAgent::CalculateVertexesDegrees(ScAddr const & networkAddr)
+ScAddrToValueUnorderedMap<int> CalculatingAndAnalysDegreeOfVerticesAgent::CalculateVertexesDegrees(ScAddr const & graphAddr)
 {
   // Создаем словарь для хранения результатов: вершина -> степень
   ScAddrToValueUnorderedMap<int> vertices;
 
   // Ищем все элементы, связанные с дорожной сетью
-  // Итератор ищет все дуги типа ConstPermPosArc от networkAddr к любым элементам
-  ScIterator3Ptr const networkIt3 = m_context.CreateIterator3(networkAddr, ScType::ConstPermPosArc, ScType::Unknown);
+  // Итератор ищет все дуги типа ConstPermPosArc от graphAddr к любым элементам
+  ScIterator3Ptr const networkIt3 = m_context.CreateIterator3(graphAddr, ScType::ConstPermPosArc, ScType::Unknown);
 
   while (networkIt3->Next()) 
   {
@@ -130,7 +130,7 @@ ScAddrToValueUnorderedMap<int> CalculatingAndAnalysDegreeOfVerticesAgent::Calcul
 
 // МЕТОД: Определение типа графа (есть ли Эйлеров цикл)
 Euler CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
-    ScAddr const & networkAddr,
+    ScAddr const & graphAddr,
     ScAddrToValueUnorderedMap<int> vertices)  // Словарь вершин и их степеней
 {
   // ПЕРЕМЕННЫЕ ДЛЯ АНАЛИЗА:
@@ -228,7 +228,7 @@ Euler CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
 
 // МЕТОД: Создание структуры с результатами анализа
 ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
-    ScAddr const & networkAddr,             // Адрес дорожной сети
+    ScAddr const & graphAddr,             // Адрес дорожной сети
     ScAddrToValueUnorderedMap<int> vertices, // Словарь вершин и их степеней
     Euler status)                  // Статус графа
 {
@@ -242,7 +242,7 @@ ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
     ScAddr const graphType = m_context.GenerateConnector(
         ScType::ConstPermPosArc,           // Тип дуги
         GraphKeynodes::concept_euler_cycle, // Класс "Эйлеров цикл"
-        networkAddr);                      // Дорожная сеть
+        graphAddr);                      // Дорожная сеть
     resultStructure << graphType;          // Добавляем в результаты
   }
   else
@@ -251,12 +251,12 @@ ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
     ScAddr const graphType = m_context.GenerateConnector(
         ScType::ConstPermPosArc,              // Тип дуги
         GraphKeynodes::concept_no_euler_cycle, // Класс "не Эйлеров цикл"
-        networkAddr);                         // Дорожная сеть
+        graphAddr);                         // Дорожная сеть
     resultStructure << graphType;             // Добавляем в результаты
   }
 
   // ШАГ 2: Добавляем саму дорожную сеть в результаты
-  resultStructure << networkAddr;
+  resultStructure << graphAddr;
 
   // ЦИКЛ: Обрабатываем все вершины и их степени
   for (auto const & [vertexAddr, degree] : vertices)
@@ -282,7 +282,7 @@ ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
 
     // ШАГ 3.4: Находим связь между дорожной сетью и текущим перекрестком
     ScIterator3Ptr edgeIt = m_context.CreateIterator3(
-        networkAddr,            // Дорожная сеть
+        graphAddr,            // Дорожная сеть
         ScType::ConstPermPosArc, // Тип дуги
         vertexAddr);            // Вершина
     

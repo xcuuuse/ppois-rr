@@ -30,9 +30,9 @@ ScAddr CreateCleaningRouteAgent::GetActionClass() const
 ScResult CreateCleaningRouteAgent::DoProgram(ScAction & action)
 {
   m_logger.Info("Начало поиска маршрута");
-  auto const & [networkAddr] = action.GetArguments<1>();
+  auto const & [graphAddr] = action.GetArguments<1>();
 
-  if (!m_context.IsElement(networkAddr))
+  if (!m_context.IsElement(graphAddr))
   {
     m_logger.Error("Дорожная сеть не найдена");
     return action.FinishWithError();
@@ -44,17 +44,17 @@ ScResult CreateCleaningRouteAgent::DoProgram(ScAction & action)
   try
   {
     // Добавляем фиктивные улицы, чтобы сделать все вершины чётной степени (условие Эйлера)
-    UpgradeToEuler(networkAddr, tempElements);
+    UpgradeToEuler(graphAddr, tempElements);
     m_logger.Info("Граф подготовлен. Временных элементов: " + std::to_string(tempElements.size()));
 
-    ScAddr startVertex = GetStartVertex(networkAddr);
+    ScAddr startVertex = GetStartVertex(graphAddr);
 
     // Строим эйлеров цикл в модифицированном графе
-    ScAddrVector route = FindEulerCycle(networkAddr);
+    ScAddrVector route = FindEulerCycle(graphAddr);
     m_logger.Info("Маршрут найден: " + std::to_string(route.size()) + " улиц");
 
     // Формируем SC-структуру результата
-    ScStructure resultStructure = CreateCleaningRouteStructure(networkAddr, route);
+    ScStructure resultStructure = CreateCleaningRouteStructure(graphAddr, route);
     action.SetResult(resultStructure);
 
     Cleanup(tempElements);
@@ -70,15 +70,15 @@ ScResult CreateCleaningRouteAgent::DoProgram(ScAction & action)
   return action.FinishSuccessfully();
 }
 
-ScAddrVector CreateCleaningRouteAgent::FindEulerCycle(ScAddr const & networkAddr)
+ScAddrVector CreateCleaningRouteAgent::FindEulerCycle(ScAddr const & graphAddr)
 {
-  ScAddr startVertex = GetStartVertex(networkAddr);
+  ScAddr startVertex = GetStartVertex(graphAddr);
   AdjList adj;  // Список смежности: вершина -> список рёбер
 
   ScAddrUnorderedSet processedStreets;
 
   // Проходим по всем перекрёсткам в сети
-  ScIterator3Ptr intersectionIt = m_context.CreateIterator3(networkAddr, ScType::ConstPermPosArc, ScType::Unknown);
+  ScIterator3Ptr intersectionIt = m_context.CreateIterator3(graphAddr, ScType::ConstPermPosArc, ScType::Unknown);
   while (intersectionIt->Next())
   {
     ScAddr const vertexAddr = intersectionIt->Get(2);
@@ -210,10 +210,10 @@ int CreateCleaningRouteAgent::GetVertexDegree(ScAddr const & vertexAddr)
 }
 
 // Получает стартовую вершину маршрута из rrel_start_point
-ScAddr CreateCleaningRouteAgent::GetStartVertex(ScAddr const & networkAddr)
+ScAddr CreateCleaningRouteAgent::GetStartVertex(ScAddr const & graphAddr)
 {
   ScIterator5Ptr const it = m_context.CreateIterator5(
-      networkAddr,
+      graphAddr,
       ScType::ConstPermPosArc,
       ScType::Unknown,
       ScType::ConstPermPosArc,
@@ -241,7 +241,7 @@ void CreateCleaningRouteAgent::Cleanup(ScAddrVector const & tempElements)
 }
 
 // Формирует SC-структуру маршрута: кортеж улиц + длина
-ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const & networkAddr, ScAddrVector route)
+ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const & graphAddr, ScAddrVector route)
 {
   ScStructure result = m_context.GenerateStructure();
 
@@ -250,7 +250,7 @@ ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const 
 
   ScAddr routeTuple = m_context.GenerateNode(ScType::ConstNodeTuple);
 
-  ScAddr const & arcCommonAddr = m_context.GenerateConnector(ScType::ConstCommonArc, networkAddr, routeTuple);
+  ScAddr const & arcCommonAddr = m_context.GenerateConnector(ScType::ConstCommonArc, graphAddr, routeTuple);
   ScAddr const & rrelOptimalRoute =
       m_context.GenerateConnector(ScType::ConstPermPosArc, GraphKeynodes::nrel_optimal_route, arcCommonAddr);
 
@@ -259,7 +259,7 @@ ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const 
     throw std::runtime_error("Маршрут пустой");
   }
 
-  result << routeTuple << networkAddr << arcCommonAddr << rrelOptimalRoute;
+  result << routeTuple << graphAddr << arcCommonAddr << rrelOptimalRoute;
 
   for (auto const & node : route)
   {
@@ -289,11 +289,11 @@ ScStructure CreateCleaningRouteAgent::CreateCleaningRouteStructure(ScAddr const 
 }
 
 // Приводит граф к эйлерову виду, добавляя кратчайшие дублирующие пути между нечётными вершинами
-void CreateCleaningRouteAgent::UpgradeToEuler(ScAddr const & networkAddr, ScAddrVector & tempElements)
+void CreateCleaningRouteAgent::UpgradeToEuler(ScAddr const & graphAddr, ScAddrVector & tempElements)
 {
   // Если граф уже помечен как эйлеров — ничего не делаем
   ScIterator3Ptr networkIt = m_context.CreateIterator3(
-      GraphKeynodes::concept_euler_cycle_graph, ScType::ConstPermPosArc, networkAddr);
+      GraphKeynodes::concept_euler_cycle_graph, ScType::ConstPermPosArc, graphAddr);
   if (networkIt->Next())
   {
     return;
@@ -301,7 +301,7 @@ void CreateCleaningRouteAgent::UpgradeToEuler(ScAddr const & networkAddr, ScAddr
 
   // Собираем все вершины нечётной степени
   ScAddrVector oddVertices;
-  ScIterator3Ptr intersectionIt = m_context.CreateIterator3(networkAddr, ScType::ConstPermPosArc, ScType::Unknown);
+  ScIterator3Ptr intersectionIt = m_context.CreateIterator3(graphAddr, ScType::ConstPermPosArc, ScType::Unknown);
 
   while (intersectionIt->Next())
   {
