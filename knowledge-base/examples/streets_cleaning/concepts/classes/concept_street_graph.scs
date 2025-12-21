@@ -4,4 +4,8 @@ concept_street_graph
     [уличный граф]
     (*
         <- lang_ru;;
+    *);
+      [street_graph]
+    (*
+        <- lang_en;;
     *);;
