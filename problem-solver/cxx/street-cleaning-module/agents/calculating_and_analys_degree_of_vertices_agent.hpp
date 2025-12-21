@@ -11,7 +11,7 @@ public:
   ScResult DoProgram(ScAction & action) override;
 
 private:
-  ScAddrToValueUnorderedMap<int> CalculateVertexesDegrees(ScAddr const & networkAddr);
-  Euler GetGraphEulerianStatus(ScAddr const & networkAddr, ScAddrToValueUnorderedMap<int> vertices);
-  ScStructure CreateAnalysisResult(ScAddr const & networkAddr, ScAddrToValueUnorderedMap<int> vertices, Euler);
+  ScAddrToValueUnorderedMap<int> CalculateVertexesDegrees(ScAddr const & graphAddr);
+  Euler GetGraphEulerianStatus(ScAddr const & graphAddr, ScAddrToValueUnorderedMap<int> vertices);
+  ScStructure CreateAnalysisResult(ScAddr const & graphAddr, ScAddrToValueUnorderedMap<int> vertices, Euler);
 };

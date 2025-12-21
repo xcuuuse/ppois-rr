@@ -19,12 +19,12 @@ private:
 
     ScAddrToValueUnorderedMap<ScAddr> TempToMapping;
 
-    void UpgradeToEuler(ScAddr const & networkAddr, ScAddrVector & tempElements);
-    ScStructure CreateCleaningRouteStructure(ScAddr const & networkAddr, ScAddrVector route);
-    ScAddrVector FindEulerCycle(ScAddr const & networkAddr);
+    void UpgradeToEuler(ScAddr const & graphAddr, ScAddrVector & tempElements);
+    ScStructure CreateCleaningRouteStructure(ScAddr const & graphAddr, ScAddrVector route);
+    ScAddrVector FindEulerCycle(ScAddr const & graphAddr);
     void Cleanup(ScAddrVector const & tempElements);
     int GetVertexDegree(ScAddr const & vertexAddr);
-    ScAddr GetStartVertex(ScAddr const & networkAddr);
+    ScAddr GetStartVertex(ScAddr const & graphAddr);
 
     void GetPairs(
         int mask,
