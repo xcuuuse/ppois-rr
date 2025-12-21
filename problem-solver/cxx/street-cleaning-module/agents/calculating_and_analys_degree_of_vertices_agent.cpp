@@ -131,14 +131,14 @@ ScAddrToValueUnorderedMap<int> CalculatingAndAnalysDegreeOfVerticesAgent::Calcul
 // МЕТОД: Определение типа графа (есть ли Эйлеров цикл)
 Euler CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
     ScAddr const & networkAddr,
-    ScAddrToValueUnorderedMap<int> vertices)  // Словарь перекрестков и их степеней
+    ScAddrToValueUnorderedMap<int> vertices)  // Словарь вершин и их степеней
 {
   // ПЕРЕМЕННЫЕ ДЛЯ АНАЛИЗА:
-  int oddDegreeCount = 0;      // Количество перекрестков с нечетной степенью
-  int verticesCount = 0;  // Общее количество перекрестков
+  int oddDegreeCount = 0;      // Количество вершин с нечетной степенью
+  int verticesCount = 0;  // Общее количество вершин
   ScAddr startBfsNode = ScAddr::Empty;  // Начальная точка для обхода графа
 
-  // ЦИКЛ 1: Анализируем все перекрестки
+  // ЦИКЛ 1: Анализируем все вершины
   for (auto const & [vertex, degree] : vertices)
   {
     // Проверяем четность степени
@@ -156,10 +156,10 @@ Euler CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
   m_logger.Info("Нечетных вершин: " + std::to_string(oddDegreeCount));
 
   // Подготовка к обходу графа в ширину (BFS)
-  ScAddrSet visitedVertices;  // Множество посещенных перекрестков
+  ScAddrSet visitedVertices;  // Множество посещенных вершин
   ScAddrQueue queue;               // Очередь для BFS
 
-  // Если есть хотя бы один перекресток с ненулевой степенью
+  // Если есть хотя бы одна вершина с ненулевой степенью
   if (startBfsNode.IsValid())
   {
     queue.push(startBfsNode);                 // Добавляем в очередь
@@ -173,11 +173,11 @@ Euler CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
     ScAddr const currentIntersection = queue.front();
     queue.pop();  // Удаляем из очереди
 
-    // ЦИКЛ 2.1: Ищем все улицы, подключенные к текущему перекрестку
+    // ЦИКЛ 2.1: Ищем все улицы, подключенные к текущему перекрестку/площади
     ScIterator5Ptr const streetIt = m_context.CreateIterator5(
         ScType::Unknown,           // Улица
-        ScType::ConstCommonArc,    // Дуга от улицы к перекрестку
-        currentIntersection,       // Текущий перекресток
+        ScType::ConstCommonArc,    // Дуга от улицы к перекрестку/площади
+        currentIntersection,       // Текущий перекресток/площадь
         ScType::ConstPermPosArc,   // Дуга к отношению
         GraphKeynodes::nrel_connects); // Отношение "соединен с"
 
@@ -185,21 +185,21 @@ Euler CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
     {
       ScAddr const streetNode = streetIt->Get(0);  // Получаем адрес улицы
 
-      // ЦИКЛ 2.2: Ищем другой конец этой улицы (соседний перекресток)
+      // ЦИКЛ 2.2: Ищем другой конец этой улицы 
       ScIterator5Ptr const neighborIt = m_context.CreateIterator5(
           streetNode,              // Улица
-          ScType::ConstCommonArc,  // Дуга от улицы к соседнему перекрестку
-          ScType::Unknown,         // Соседний перекресток
+          ScType::ConstCommonArc,  // Дуга от улицы к перекрёстку/площади
+          ScType::Unknown,         // Перекрёсток/площадь
           ScType::ConstPermPosArc, // Дуга к отношению
           GraphKeynodes::nrel_connects); // Отношение "соединен с"
 
       while (neighborIt->Next())  // Для каждого найденного соседа
       {
-        ScAddr const nextIntersection = neighborIt->Get(2);  // Получаем соседний перекресток
+        ScAddr const nextIntersection = neighborIt->Get(2);  // Получаем соседний перекрёсток/площадь
 
         // Условия для добавления соседа в очередь:
-        // 1. Это не тот же самый перекресток
-        // 2. Он существует в нашем словаре перекрестков
+        // 1. Это не тот же самый перекресток/площадь
+        // 2. Он существует в нашем словаре вершин
         // 3. Он еще не был посещен
         if (nextIntersection != currentIntersection && 
             vertices.find(nextIntersection) != vertices.end() &&
@@ -229,7 +229,7 @@ Euler CalculatingAndAnalysDegreeOfVerticesAgent::GetGraphEulerianStatus(
 // МЕТОД: Создание структуры с результатами анализа
 ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
     ScAddr const & networkAddr,             // Адрес дорожной сети
-    ScAddrToValueUnorderedMap<int> vertices, // Словарь перекрестков и их степеней
+    ScAddrToValueUnorderedMap<int> vertices, // Словарь вершин и их степеней
     Euler status)                  // Статус графа
 {
   // Создаем новую структуру в памяти для хранения результатов
@@ -258,7 +258,7 @@ ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
   // ШАГ 2: Добавляем саму дорожную сеть в результаты
   resultStructure << networkAddr;
 
-  // ЦИКЛ: Обрабатываем все перекрестки и их степени
+  // ЦИКЛ: Обрабатываем все вершины и их степени
   for (auto const & [vertexAddr, degree] : vertices)
   {
     // ШАГ 3.1: Создаем ссылку для хранения числового значения степени
@@ -267,10 +267,10 @@ ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
     // Записываем значение степени в ссылку (например, "3" для Т-образного перекрестка)
     m_context.SetLinkContent(vertexDegreeAddr, std::to_string(degree));
 
-    // ШАГ 3.2: Создаем связь: перекресток -> его степень
+    // ШАГ 3.2: Создаем связь: вершина -> её степень
     ScAddr const & arcCommonAddr = m_context.GenerateConnector(
         ScType::ConstCommonArc,  // Тип дуги
-        vertexAddr,              // Перекресток
+        vertexAddr,              // Вершина
         vertexDegreeAddr);       // Ссылка со значением степени
 
     // ШАГ 3.3: Создаем отношение "степень" для этой связи
@@ -278,21 +278,21 @@ ScStructure CalculatingAndAnalysDegreeOfVerticesAgent::CreateAnalysisResult(
         m_context.GenerateConnector(
             ScType::ConstPermPosArc,          // Тип дуги
             GraphKeynodes::nrel_degree,       // Отношение "степень"
-            arcCommonAddr);                   // Связь между перекрестком и его степенью
+            arcCommonAddr);                   // Связь между верной и его степенью
 
     // ШАГ 3.4: Находим связь между дорожной сетью и текущим перекрестком
     ScIterator3Ptr edgeIt = m_context.CreateIterator3(
         networkAddr,            // Дорожная сеть
         ScType::ConstPermPosArc, // Тип дуги
-        vertexAddr);            // Перекресток
+        vertexAddr);            // Вершина
     
     // Если такая связь существует, добавляем ее в результаты
     if (edgeIt->Next())
-      resultStructure << edgeIt->Get(1) << edgeIt->Get(2);  // Дуга и перекресток
+      resultStructure << edgeIt->Get(1) << edgeIt->Get(2);  // Дуга и вершина
 
     // ШАГ 3.5: Добавляем все созданные элементы в структуру результатов
     resultStructure << vertexDegreeAddr     // Ссылка со значением степени
-                    << arcCommonAddr        // Связь перекресток->степень
+                    << arcCommonAddr        // Связь вершина->степень
                     << nrelVertexDegreeAddr; // Отношение "степень"
   }
 
